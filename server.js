@@ -5,6 +5,11 @@ const bodyParser = require("body-parser");
 const app = express();
 app.use(bodyParser.json());
 
+// Default route to confirm server is running
+app.get("/", (req, res) => {
+    res.send("Server is running. Use the /encrypt route to encrypt passwords.");
+});
+
 // Endpoint for encryption
 app.post("/encrypt", (req, res) => {
     const password = req.body.password; // Password received from Zoho
