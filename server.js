@@ -1,23 +1,30 @@
-const express = require("express");
-const crypto = require("crypto");
-const bodyParser = require("body-parser");
-
+const express = require('express');
 const app = express();
+const bodyParser = require('body-parser');
+const bcrypt = require('bcrypt');
+
 app.use(bodyParser.json());
 
-// Default route to confirm server is running
-app.get("/", (req, res) => {
-    res.send("Server is running. Use the /encrypt route to encrypt passwords.");
+app.get('/', (req, res) => {
+    res.send('Server is running. Use the /encrypt route to encrypt passwords.');
 });
 
-// Endpoint for encryption
-app.post("/encrypt", (req, res) => {
-    const password = req.body.password; // Password received from Zoho
-    const hashedPassword = crypto.createHash("sha256").update(password).digest("hex"); // Encrypt using SHA-256
-    res.json({ encrypted_value: hashedPassword }); // Return encrypted password
+// Encrypt route
+app.post('/encrypt', async (req, res) => {
+    const { password } = req.body;
+    if (!password) {
+        return res.status(400).send('Password is required');
+    }
+    try {
+        const hashedPassword = await bcrypt.hash(password, 10);
+        res.json({ hashedPassword });
+    } catch (error) {
+        res.status(500).send('Error encrypting password');
+    }
 });
 
-// Server listening
-app.listen(3000, () => {
-    console.log("Encryption API running on http://localhost:3000");
+// Start the server
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+    console.log(`Server is running on port ${PORT}`);
 });
